@@ -1,4 +1,4 @@
-# Timeweb Genie
+# Timeweb Genie Neo
 
 A CLI tool to calculate working hours logged in the Time@Web application.
 
@@ -21,6 +21,7 @@ A CLI tool to calculate working hours logged in the Time@Web application.
    Optional config options:
 
    - `justificationTypes`: Overwrite the default types to be considered for calculating the working times (array of strings)
+   - `justificationTypesToIgnore`: Overwrite the default types to be completely ignored (array of strings)
    - `targetWorkingHours`: Overwrite the default target working hours (number)
    - `targetBreakMinutes`: Overwrite the default lunch break time (number)
 
@@ -28,14 +29,14 @@ A CLI tool to calculate working hours logged in the Time@Web application.
 
    Simply run it with
    ```sh
-   npx timeweb-genie
+   npx timeweb-genie-neo
    ```
 
    *or* install it globally and run it with
 
    ```sh
-   npm install -g timeweb-genie
-   timeweb-genie
+   npm install -g timeweb-genie-neo
+   timeweb-genie-neo
    ```
 
 
@@ -43,7 +44,7 @@ A CLI tool to calculate working hours logged in the Time@Web application.
 ## Usage
 
 ```sh
-npx timeweb-genie [DD/MM/YYYY DD/MM/YYYY]
+npx timeweb-genie-neo [DD/MM/YYYY DD/MM/YYYY]
 ```
 
 ## Contributing
