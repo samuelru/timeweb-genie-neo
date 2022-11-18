@@ -25,7 +25,6 @@
   "main": "dist/application.js",
   "scripts": {
     "dev": "tsc -w",
-    "deploy": "yarn publish",
     "prepublish": "tsc"
   },
   "keywords": [
