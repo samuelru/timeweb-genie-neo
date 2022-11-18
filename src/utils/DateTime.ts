@@ -1,5 +1,5 @@
-module.exports = {
-  formatDate(date) {
+export class DateTime {
+  static formatDate(date: Date) {
     return (
       ("0" + date.getDate()).slice(-2) +
       "/" +
@@ -7,17 +7,17 @@ module.exports = {
       "/" +
       date.getFullYear()
     );
-  },
+  }
 
-  checkDateFormat(dateStr) {
+  static checkDateFormat(dateStr: string) {
     return /\d{2}\/\d{2}\/\d{4}/.test(dateStr);
-  },
+  }
 
-  minutesToHours(minutes) {
+  static minutesToHours(minutes: number) {
     return Math.round((minutes / 60 + Number.EPSILON) * 100) / 100;
-  },
+  }
 
-  durationText(minutes) {
+  static durationText(minutes: number) {
     const negative = minutes < 0;
     minutes = Math.abs(minutes);
 
@@ -28,12 +28,12 @@ module.exports = {
       (negative ? "-" : "") +
       [`${hours}h`, `${minutes}m`].filter((n) => parseInt(n)).join(" ")
     );
-  },
+  }
 
-  minutesToTime(minutes) {
+  static minutesToTime(minutes: number) {
     const hours = Math.trunc(minutes / 60);
     minutes = minutes - 60 * hours;
 
     return `${("0" + hours).slice(-2)}:${("0" + minutes).slice(-2)}`;
-  },
-};
+  }
+}

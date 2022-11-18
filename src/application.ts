@@ -1,23 +1,20 @@
 #!/usr/bin/env node
+import os from 'os';
 
-const Http = require("./classes/Http");
-const Parser = require("./classes/Parser");
-const TIME_TYPE_END = require("./classes/Parser").TIME_TYPE_END;
-const TIME_TYPE_START = require("./classes/Parser").TIME_TYPE_START;
-const {
-  formatDate,
-  checkDateFormat,
-  minutesToHours,
-  durationText,
-  minutesToTime,
-} = require("./utils/dateTime");
+import {WorkingTimesType} from "./types/WorkingTimesType";
+import {TimeEntryType} from "./types/TimeEntryType";
+import Http from "./classes/Http";
+import {ConfigType} from "./types/ConfigType";
+import {Parser} from "./classes/Parser";
+import {DateTime} from "./utils/DateTime";
+import {TimeTypeEnum} from "./enum/TimeTypeEnum";
 
 const scriptArgs = process.argv.slice(2);
 
 let config = {
-  timewebUrl: null,
-  username: null,
-  password: null,
+  timewebUrl: '',
+  username: '',
+  password: '',
   justificationTypes: [
     "SMART WORKING",
     "23TELE TELEARBEIT",
@@ -32,29 +29,30 @@ let config = {
   ],
   targetWorkingHours: 7.5,
   targetBreakMinutes: 60,
-};
+} as ConfigType;
 
 try {
-  const homeDir = require("os").homedir();
+  const homeDir = os.homedir();
+
+  console.log("homeDir", homeDir)
+
   config = {
     ...config,
     ...require(`${homeDir}/.timeweb-genie.json`),
-  };
+  } as ConfigType;
 } catch (e) {
   console.error("Could not open ~/.timeweb-genie.json - PLease see README.md!");
   process.exit(1);
 }
 
-const http = new Http({
-  timewebUrl: config.timewebUrl,
-});
+const http = new Http(config);
 
-const parser = new Parser({
-  justificationTypes: config.justificationTypes,
-  justificationTypesToIgnore: config.justificationTypesToIgnore
-});
+const parser = new Parser(config);
 
 (async () => {
+
+  console.log("config", config)
+
   try {
     await http.authenticate(config.username, config.password);
   } catch (e) {
@@ -65,13 +63,13 @@ const parser = new Parser({
   let fromDate;
   let toDate;
 
-  if (checkDateFormat(scriptArgs[0]) && checkDateFormat(scriptArgs[1])) {
+  if (DateTime.checkDateFormat(scriptArgs[0]) && DateTime.checkDateFormat(scriptArgs[1])) {
     fromDate = scriptArgs[0];
     toDate = scriptArgs[1];
   } else {
     const now = new Date();
-    fromDate = formatDate(new Date(now.getFullYear(), now.getMonth(), 1));
-    toDate = formatDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    fromDate = DateTime.formatDate(new Date(now.getFullYear(), now.getMonth(), 1));
+    toDate = DateTime.formatDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
   }
 
   const timeCardHtml = await http.loadTimeCardHtml(fromDate, toDate);
@@ -83,7 +81,7 @@ const parser = new Parser({
     relativeMinutes: 0,
   };
 
-  const table = parser.getWorkingTimes().map((dateTime) => {
+  const table = parser.getWorkingTimes().map((dateTime: WorkingTimesType) => {
     const relativeMinutes =
       dateTime.workingMinutes +
       dateTime.freeMinutes -
@@ -95,23 +93,24 @@ const parser = new Parser({
 
     return {
       Date: dateTime.date,
-      "Working Hours": minutesToHours(dateTime.workingMinutes),
-      "Working Time": durationText(dateTime.workingMinutes),
-      "Free Time": durationText(dateTime.freeMinutes),
-      "Diff Hours": minutesToHours(relativeMinutes),
-      Diff: durationText(relativeMinutes),
-      "Clock Out": minutesToTime(getClockOutTime(dateTime)),
+      "Working Hours": DateTime.minutesToHours(dateTime.workingMinutes),
+      "Working Time": DateTime.durationText(dateTime.workingMinutes),
+      "Free Time": DateTime.durationText(dateTime.freeMinutes),
+      "Diff Hours": DateTime.minutesToHours(relativeMinutes),
+      Diff: DateTime.durationText(relativeMinutes),
+      "Clock Out": DateTime.minutesToTime(getClockOutTime(dateTime)),
     };
   });
 
   table.push(
+    // @ts-ignore
     {},
     {
       Date: "TOTAL",
-      "Working Hours": minutesToHours(totals.workingMinutes),
-      "Working Time": durationText(totals.workingMinutes),
-      "Diff Hours": minutesToHours(totals.relativeMinutes),
-      Diff: durationText(totals.relativeMinutes),
+      "Working Hours": DateTime.minutesToHours(totals.workingMinutes),
+      "Working Time": DateTime.durationText(totals.workingMinutes),
+      "Diff Hours": DateTime.minutesToHours(totals.relativeMinutes),
+      Diff: DateTime.durationText(totals.relativeMinutes),
     }
   );
 
@@ -119,15 +118,15 @@ const parser = new Parser({
 })();
 
 // TODO: move to own utility lib or class?
-function getClockOutTime({ workingTimes, workingMinutes, freeMinutes }) {
-  let time = null;
+function getClockOutTime({ workingTimes, workingMinutes, freeMinutes }: { workingTimes: TimeEntryType[] , workingMinutes: number, freeMinutes:number }) {
+  let time = 0;
 
   if (workingTimes && workingTimes.length > 0) {
     const workingTime = workingTimes[workingTimes.length - 1];
-    if (workingTime.type === TIME_TYPE_END) {
+    if (workingTime.type === TimeTypeEnum.END) {
       time = workingTime.time;
     }
-    if (workingTime.type === TIME_TYPE_START) {
+    if (workingTime.type === TimeTypeEnum.START) {
       const now = new Date();
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
       time =

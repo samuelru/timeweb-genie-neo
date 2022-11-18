@@ -1,26 +1,35 @@
-const TIME_TYPE_START = "start";
-const TIME_TYPE_END = "end";
+import {ConfigType} from "../types/ConfigType";
+import {DateTimeType} from "../types/DateTimeType";
+import {TimeEntryType} from "../types/TimeEntryType";
+import {WorkingTimesType} from "../types/WorkingTimesType";
+import {TimeTypeEnum} from "../enum/TimeTypeEnum";
 
-class Parser {
-  constructor(config = null) {
+export class Parser {
+
+  justificationTypes: string[];
+  justificationTypesToIgnore: string[];
+  dateTimes: DateTimeType[];
+
+  constructor(config: ConfigType) {
     this.justificationTypes = config.justificationTypes;
     this.justificationTypesToIgnore = config.justificationTypesToIgnore;
     this.dateTimes = [];
   }
 
-  parseTimeCard(timeCardHtml) {
+  parseTimeCard(timeCardHtml: string) {
     this.dateTimes = this.#parseDateTimes(timeCardHtml);
   }
 
   getWorkingTimes() {
     return this.dateTimes.map(({ date, workingTimes, freeTimes }) => {
-      let workingMinutes = null;
-      let freeMinutes = null;
+      let workingMinutes = 0;
+      let freeMinutes = 0;
 
       try {
         workingMinutes = calculateWorkingTime(workingTimes);
         freeMinutes = calculateWorkingTime(freeTimes);
-      } catch (e) {
+      } catch (e: unknown) {
+        // @ts-ignore
         console.error(e.message);
       }
 
@@ -30,12 +39,12 @@ class Parser {
         freeTimes,
         workingMinutes,
         freeMinutes,
-      };
+      } as WorkingTimesType;
     });
   }
 
-  #parseDateTimes(timeCardHtml) {
-    let dateTimes = [];
+  #parseDateTimes(timeCardHtml: string) {
+    let dateTimes = [] as DateTimeType[];
 
     const rowRegex =
       /<td[^>]+>(?:<font[^>]+>)?(\d{2}.\d{2}.\d{2})[^<]+(?:<\/font>)?<\/td>[\S\s]+?<\/tr>(?:<tr style="background-color:#EEEEEE"|<\/table>\W+<\/div>)/gi;
@@ -59,7 +68,7 @@ class Parser {
     return dateTimes;
   }
 
-  #parseRow(row) {
+  #parseRow(row: string) {
     const clockedTimes = this.#parseClockedTimes(row);
     const { workingTimes, freeTimes } = this.#parseJustificationTimes(row);
 
@@ -69,7 +78,7 @@ class Parser {
     };
   }
 
-  #parseClockedTimes(row) {
+  #parseClockedTimes(row: string) {
     let times = [];
 
     const colRegex = /<td[^>]+>((?:[EU]\d{2}:\d{2}[\W<br>]+)+)<\/td>/i;
@@ -82,7 +91,7 @@ class Parser {
       let timesMatches;
       while ((timesMatches = timesRegex.exec(timesCol))) {
         times.push({
-          type: timesMatches[1] === "E" ? TIME_TYPE_START : TIME_TYPE_END,
+          type: timesMatches[1] === "E" ? TimeTypeEnum.START : TimeTypeEnum.END,
           time: timeHHMMToMinutes(timesMatches[2]),
         });
       }
@@ -91,9 +100,9 @@ class Parser {
     return times;
   }
 
-  #parseJustificationTimes(row) {
-    let workingTimes = [];
-    let freeTimes = [];
+  #parseJustificationTimes(row: string) {
+    let workingTimes = [] as TimeEntryType[];
+    let freeTimes = [] as TimeEntryType[];
 
     const htmlRegex = /<th[^>]*>descrizione<\/th><th[^>]*>tipo<\/th>(.*?),/i;
     const htmlMatches = htmlRegex.exec(row);
@@ -124,11 +133,11 @@ class Parser {
 
           (foundWorkingType ? workingTimes : freeTimes).push(
             {
-              type: TIME_TYPE_START,
+              type: TimeTypeEnum.START,
               time: timeHHMMToMinutes(timesMatches[1]),
             },
             {
-              type: TIME_TYPE_END,
+              type: TimeTypeEnum.END,
               time: timeHHMMToMinutes(timesMatches[2]),
             }
           );
@@ -143,28 +152,28 @@ class Parser {
   }
 }
 
-function timeHHMMToMinutes(time) {
+function timeHHMMToMinutes(time: string) {
   const parts = time.split(":");
   return +parts[0] * 60 + +parts[1];
 }
 
-function mergeTimes(time1, ...mergeTimes) {
+function mergeTimes(time1: TimeEntryType[], mergeTimes: TimeEntryType[]) {
   return time1
-    .concat(...mergeTimes)
+    .concat(mergeTimes)
     .sort((timeA, timeB) => timeA.time - timeB.time);
 }
 
-function calculateWorkingTime(times) {
-  let currentType = TIME_TYPE_END;
+function calculateWorkingTime(times: TimeEntryType[]) {
+  let currentType = TimeTypeEnum.END;
   let currentTime = 0;
 
   let time = times.reduce((workingTime, { type, time }) => {
-    if (currentType === TIME_TYPE_END && type === TIME_TYPE_START) {
+    if (currentType === TimeTypeEnum.END && type === TimeTypeEnum.START) {
       currentTime = time;
       currentType = type;
       return workingTime;
     }
-    if (currentType === TIME_TYPE_START && type === TIME_TYPE_END) {
+    if (currentType === TimeTypeEnum.START && type === TimeTypeEnum.END) {
       currentType = type;
       return workingTime + (time - currentTime);
     }
@@ -172,7 +181,7 @@ function calculateWorkingTime(times) {
   }, 0);
 
   // Use current time as end time, if last logged is a start time (= currently working)
-  if (currentType === TIME_TYPE_START) {
+  if (currentType === TimeTypeEnum.START) {
     const now = new Date();
     time +=
       now.getHours() * 60 + now.getMinutes() - times[times.length - 1].time;
@@ -180,7 +189,3 @@ function calculateWorkingTime(times) {
 
   return time;
 }
-
-module.exports = Parser;
-module.exports.TIME_TYPE_END = TIME_TYPE_END;
-module.exports.TIME_TYPE_START = TIME_TYPE_START;

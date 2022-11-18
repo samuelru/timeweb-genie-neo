@@ -9,9 +9,10 @@
     "url": "git+https://github.com/samuelru/timeweb-genie-neo.git"
   },
   "bin": {
-    "timeweb-genie-neo": "src/cli.js"
+    "timeweb-genie-neo": "src/main.ts"
   },
   "dependencies": {
+    "@types/node": "^18.11.9",
     "axios": "^0.22.0"
   },
   "engines": {
@@ -21,11 +22,16 @@
     "url": "https://github.com/samuelru/timeweb-genie-neo/issues"
   },
   "homepage": "https://github.com/samuelru/timeweb-genie-neo#readme",
-  "main": "src/cli.js",
+  "main": "src/main.ts",
   "scripts": {
+    "start": "node ./dist/application.js",
+    "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "Timeweb"
-  ]
+  ],
+  "devDependencies": {
+    "typescript": "^4.9.3"
+  }
 }
