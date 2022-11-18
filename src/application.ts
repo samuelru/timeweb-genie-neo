@@ -21,6 +21,10 @@ const http = new Http(config);
 const parser = new Parser(config);
 
 (async () => {
+  await run();
+})();
+
+async function run() {
   try {
     await http.authenticate(config.username, config.password);
   } catch (e) {
@@ -28,28 +32,12 @@ const parser = new Parser(config);
     process.exit(2);
   }
 
-  let fromDate;
-  let toDate;
-
-  if (
-    DateTime.checkDateFormat(scriptArgs[0]) &&
-    DateTime.checkDateFormat(scriptArgs[1])
-  ) {
-    fromDate = scriptArgs[0];
-    toDate = scriptArgs[1];
-  } else {
-    const now = new Date();
-    fromDate = DateTime.formatDate(
-      new Date(now.getFullYear(), now.getMonth(), 1)
-    );
-    toDate = DateTime.formatDate(
-      new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    );
-  }
-
-  const timeCardHtml = await http.loadTimeCardHtml(fromDate, toDate);
+  const timeCardHtml = await http.loadTimeCardHtml(
+    DateTime.getDateFrom(scriptArgs[0]),
+    DateTime.getDateTo(scriptArgs[1])
+  );
 
   const workingTimes = parser.parseTimeCard(timeCardHtml);
 
   TablePrinter.print(config, workingTimes);
-})();
+}

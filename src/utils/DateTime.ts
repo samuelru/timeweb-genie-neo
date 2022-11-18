@@ -36,4 +36,26 @@ export class DateTime {
 
     return `${("0" + hours).slice(-2)}:${("0" + minutes).slice(-2)}`;
   }
+
+  static getDateFrom(dateFrom: string) {
+    if (DateTime.checkDateFormat(dateFrom)) {
+      return dateFrom;
+    } else {
+      const now = new Date();
+      return DateTime.formatDate(
+        new Date(now.getFullYear(), now.getMonth(), 1)
+      );
+    }
+  }
+
+  static getDateTo(dateTo: string) {
+    if (DateTime.checkDateFormat(dateTo)) {
+      return dateTo;
+    } else {
+      const now = new Date();
+      return DateTime.formatDate(
+        new Date(now.getFullYear(), now.getMonth() + 1, 0)
+      );
+    }
+  }
 }
