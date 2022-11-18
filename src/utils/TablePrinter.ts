@@ -2,6 +2,7 @@ import { ConfigType } from "../types/ConfigType";
 import { WorkingTimesType } from "../types/WorkingTimesType";
 import { DateTime } from "./DateTime";
 import { ClockOutUtil } from "./ClockOutUtil";
+import { Memes } from "./Memes";
 
 export class TablePrinter {
   static print(config: ConfigType, result: WorkingTimesType[]) {
@@ -48,5 +49,33 @@ export class TablePrinter {
     });
 
     console.table(table);
+
+    if (table.length >= 3) {
+      const lastDay = table[table.length - 3];
+
+      let result = "";
+      const percent = (lastDay["Working Hours"] / 7.5) * 100;
+      for (let i = 0; i < Math.max(100, percent); i++) {
+        if (i <= Math.min(percent, 100)) {
+          result += "█";
+        } else if (i > 100) {
+          result += "⣿";
+        } else {
+          result += "░";
+        }
+      }
+
+      console.log("Last day:");
+      console.log(
+        `${result} ${lastDay["Diff Hours"] > 0 ? "+" : ""} ${lastDay.Diff}`
+      );
+      console.log();
+
+      if (lastDay["Diff Hours"] > 0) {
+        Memes.happy();
+
+        console.log(`Yeah, you have done a good job today!`);
+      }
+    }
   }
 }
