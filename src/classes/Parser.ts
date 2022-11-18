@@ -155,10 +155,30 @@ function timeHHMMToMinutes(time: string) {
   return +parts[0] * 60 + +parts[1];
 }
 
-function mergeTimes(time1: TimeEntryType[], mergeTimes: TimeEntryType[]) {
-  return time1
-    .concat(mergeTimes)
+function mergeTimes(
+  clockedTimes: TimeEntryType[],
+  workingTimes: TimeEntryType[]
+) {
+  const items = clockedTimes
+    .concat(workingTimes)
     .sort((timeA, timeB) => timeA.time - timeB.time);
+
+  const result = [] as TimeEntryType[];
+  let previousType = "";
+  for (let item of items) {
+    if (previousType === item.type && previousType === TimeTypeEnum.START) {
+      previousType = item.type;
+      continue;
+    }
+    if (previousType === item.type && previousType === TimeTypeEnum.END) {
+      result.pop();
+    }
+
+    previousType = item.type;
+    result.push(item);
+  }
+
+  return result;
 }
 
 function calculateWorkingTime(times: TimeEntryType[]) {
