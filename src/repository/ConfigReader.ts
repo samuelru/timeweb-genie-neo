@@ -1,28 +1,28 @@
 import os from "os";
-import {ConfigType} from "../types/ConfigType";
+import { ConfigType } from "../types/ConfigType";
 
+export default class ConfigReader {
+  homeDir = "";
 
-export default class ConfigReader{
+  constructor() {
+    this.homeDir = os.homedir();
+  }
 
-    homeDir = ''
+  getConfigFromHomeDir(): ConfigType {
+    try {
+      if (this.homeDir === "") {
+        console.error(
+          "Could not open ~/.timeweb-genie.json - PLease see README.md!"
+        );
+        process.exit(1);
+      }
 
-    constructor(){
-        this.homeDir = os.homedir();
+      return require(`${this.homeDir}/.timeweb-genie.json`);
+    } catch (e) {
+      console.error(
+        "Could not open ~/.timeweb-genie.json - PLease see README.md!"
+      );
+      process.exit(1);
     }
-
-    getConfigFromHomeDir(): ConfigType{
-        try {
-            if(this.homeDir === '' ){
-                console.error("Could not open ~/.timeweb-genie.json - PLease see README.md!");
-                process.exit(1);
-            }
-
-            return require(`${this.homeDir}/.timeweb-genie.json`);
-        } catch (e) {
-            console.error("Could not open ~/.timeweb-genie.json - PLease see README.md!");
-            process.exit(1);
-        }
-    }
-
+  }
 }
-

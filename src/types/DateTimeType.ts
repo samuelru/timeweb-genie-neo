@@ -1,7 +1,7 @@
-import {TimeEntryType} from "./TimeEntryType";
+import { TimeEntryType } from "./TimeEntryType";
 
 export interface DateTimeType {
-    date: string
-    workingTimes: TimeEntryType[]
-    freeTimes: TimeEntryType[]
+  date: string;
+  workingTimes: TimeEntryType[];
+  freeTimes: TimeEntryType[];
 }

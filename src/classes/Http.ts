@@ -1,10 +1,9 @@
 import axios from "axios";
 import https from "https";
 import http from "node:http";
-import {ConfigType} from "../types/ConfigType";
+import { ConfigType } from "../types/ConfigType";
 
 export default class Http {
-
   timewebUrl: string;
   httpsAgent: http.Agent;
   cookies: string[];
@@ -20,7 +19,6 @@ export default class Http {
   }
 
   async authenticate(username: string, password: string) {
-
     let data = this.#encodeFormData({
       AZIONE: "RICHIESTAAUTENTIFICAZIONE",
       USERNAME: username,
@@ -67,21 +65,18 @@ export default class Http {
 
   #parseCookies(cookies: string[]) {
     return cookies
-        .map((entry) => {
-          const parts = entry.split(";");
-          return parts[0];
-        })
-        .join(";");
+      .map((entry) => {
+        const parts = entry.split(";");
+        return parts[0];
+      })
+      .join(";");
   }
 
   #encodeFormData(data: Object) {
     return Object.keys(data).reduce(
-        // @ts-ignore
-        (str, key) => str + `&${key}=${encodeURIComponent(data[key])}`,
-        ""
+      // @ts-ignore
+      (str, key) => str + `&${key}=${encodeURIComponent(data[key])}`,
+      ""
     );
   }
-
-};
-
-
+}

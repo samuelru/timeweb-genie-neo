@@ -1,11 +1,10 @@
-import {ConfigType} from "../types/ConfigType";
+import { ConfigType } from "../types/ConfigType";
 
 export const DefaultConfig: ConfigType = {
-
-    timewebUrl: '',
-        username: '',
-    password: '',
-    justificationTypes: [
+  timewebUrl: "",
+  username: "",
+  password: "",
+  justificationTypes: [
     "SMART WORKING",
     "23TELE TELEARBEIT",
     "02DIGA AUSSENDIENST",
@@ -13,11 +12,8 @@ export const DefaultConfig: ConfigType = {
     "S-FEÜB FEIERTAGSÜBERSTUNDEN",
     "SCHULUNG AKTIV",
     "ZUSÄTZLICHE ARBEITSZEIT",
-],
-    justificationTypesToIgnore: [
-    "06ZAOA ZEITAUSGLEICH o. ABZUG",
-],
-    targetWorkingHours: 7.5,
-    targetBreakMinutes: 60
-
-}
+  ],
+  justificationTypesToIgnore: ["06ZAOA ZEITAUSGLEICH o. ABZUG"],
+  targetWorkingHours: 7.5,
+  targetBreakMinutes: 60,
+};

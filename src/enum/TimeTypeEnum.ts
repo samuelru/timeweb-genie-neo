@@ -1,4 +1,4 @@
 export const TimeTypeEnum = {
-    START: 'START',
-    END: 'END',
-}
+  START: "START",
+  END: "END",
+};

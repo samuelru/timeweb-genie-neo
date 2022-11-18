@@ -2,8 +2,8 @@
 
 A CLI tool to calculate working hours logged in the Time@Web application.
 
-| :warning: WARNING                              |
-| ---------------------------------------------- |
+| :warning: WARNING                            |
+| -------------------------------------------- |
 | This is a beta release and errors may occur. |
 
 ## Installation/Update and Configuration
@@ -28,18 +28,17 @@ A CLI tool to calculate working hours logged in the Time@Web application.
 2. Run, install or update
 
    Simply run it with
+
    ```sh
    npx timeweb-genie-neo
    ```
 
-   *or* install it globally and run it with
+   _or_ install it globally and run it with
 
    ```sh
    npm install -g timeweb-genie-neo
    timeweb-genie-neo
    ```
-
-
 
 ## Usage
 

@@ -1,30 +1,28 @@
 #!/usr/bin/env node
-import {WorkingTimesType} from "./types/WorkingTimesType";
-import {TimeEntryType} from "./types/TimeEntryType";
+import { WorkingTimesType } from "./types/WorkingTimesType";
+import { TimeEntryType } from "./types/TimeEntryType";
 import Http from "./classes/Http";
-import {ConfigType} from "./types/ConfigType";
-import {Parser} from "./classes/Parser";
-import {DateTime} from "./utils/DateTime";
-import {TimeTypeEnum} from "./enum/TimeTypeEnum";
-import {DefaultConfig} from "./config/DefaultConfig";
+import { ConfigType } from "./types/ConfigType";
+import { Parser } from "./classes/Parser";
+import { DateTime } from "./utils/DateTime";
+import { TimeTypeEnum } from "./enum/TimeTypeEnum";
+import { DefaultConfig } from "./config/DefaultConfig";
 import ConfigReader from "./repository/ConfigReader";
 
 const scriptArgs = process.argv.slice(2);
 
 const configReader = new ConfigReader();
-const homeDirConfig = configReader.getConfigFromHomeDir()
+const homeDirConfig = configReader.getConfigFromHomeDir();
 
 const config = {
   ...DefaultConfig,
   ...homeDirConfig,
 } as ConfigType;
 
-
 const http = new Http(config);
 const parser = new Parser(config);
 
 (async () => {
-
   try {
     await http.authenticate(config.username, config.password);
   } catch (e) {
@@ -35,13 +33,20 @@ const parser = new Parser(config);
   let fromDate;
   let toDate;
 
-  if (DateTime.checkDateFormat(scriptArgs[0]) && DateTime.checkDateFormat(scriptArgs[1])) {
+  if (
+    DateTime.checkDateFormat(scriptArgs[0]) &&
+    DateTime.checkDateFormat(scriptArgs[1])
+  ) {
     fromDate = scriptArgs[0];
     toDate = scriptArgs[1];
   } else {
     const now = new Date();
-    fromDate = DateTime.formatDate(new Date(now.getFullYear(), now.getMonth(), 1));
-    toDate = DateTime.formatDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    fromDate = DateTime.formatDate(
+      new Date(now.getFullYear(), now.getMonth(), 1)
+    );
+    toDate = DateTime.formatDate(
+      new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    );
   }
 
   const timeCardHtml = await http.loadTimeCardHtml(fromDate, toDate);
@@ -90,7 +95,15 @@ const parser = new Parser(config);
 })();
 
 // TODO: move to own utility lib or class?
-function getClockOutTime({ workingTimes, workingMinutes, freeMinutes }: { workingTimes: TimeEntryType[] , workingMinutes: number, freeMinutes:number }) {
+function getClockOutTime({
+  workingTimes,
+  workingMinutes,
+  freeMinutes,
+}: {
+  workingTimes: TimeEntryType[];
+  workingMinutes: number;
+  freeMinutes: number;
+}) {
   let time = 0;
 
   if (workingTimes && workingTimes.length > 0) {

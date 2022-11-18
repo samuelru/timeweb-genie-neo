@@ -1,11 +1,10 @@
-import {ConfigType} from "../types/ConfigType";
-import {DateTimeType} from "../types/DateTimeType";
-import {TimeEntryType} from "../types/TimeEntryType";
-import {WorkingTimesType} from "../types/WorkingTimesType";
-import {TimeTypeEnum} from "../enum/TimeTypeEnum";
+import { ConfigType } from "../types/ConfigType";
+import { DateTimeType } from "../types/DateTimeType";
+import { TimeEntryType } from "../types/TimeEntryType";
+import { WorkingTimesType } from "../types/WorkingTimesType";
+import { TimeTypeEnum } from "../enum/TimeTypeEnum";
 
 export class Parser {
-
   justificationTypes: string[];
   justificationTypesToIgnore: string[];
   dateTimes: DateTimeType[];
@@ -123,11 +122,11 @@ export class Parser {
             row.includes(type)
           );
 
-          const foundTypeToIgnore = this.justificationTypesToIgnore.find((type) =>
-              row.includes(type)
+          const foundTypeToIgnore = this.justificationTypesToIgnore.find(
+            (type) => row.includes(type)
           );
 
-          if(foundTypeToIgnore){
+          if (foundTypeToIgnore) {
             continue;
           }
 
