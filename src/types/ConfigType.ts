@@ -6,5 +6,4 @@ export interface ConfigType {
     justificationTypesToIgnore: string[]
     targetWorkingHours: number
     targetBreakMinutes: number
-    disableSSL: boolean
 }

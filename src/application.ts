@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-import os from 'os';
-
 import {WorkingTimesType} from "./types/WorkingTimesType";
 import {TimeEntryType} from "./types/TimeEntryType";
 import Http from "./classes/Http";
@@ -8,50 +6,24 @@ import {ConfigType} from "./types/ConfigType";
 import {Parser} from "./classes/Parser";
 import {DateTime} from "./utils/DateTime";
 import {TimeTypeEnum} from "./enum/TimeTypeEnum";
+import {DefaultConfig} from "./config/DefaultConfig";
+import ConfigReader from "./repository/ConfigReader";
 
 const scriptArgs = process.argv.slice(2);
 
-let config = {
-  timewebUrl: '',
-  username: '',
-  password: '',
-  justificationTypes: [
-    "SMART WORKING",
-    "23TELE TELEARBEIT",
-    "02DIGA AUSSENDIENST",
-    "04SCHU SCHULUNG PASSIV",
-    "S-FEÜB FEIERTAGSÜBERSTUNDEN",
-    "SCHULUNG AKTIV",
-    "ZUSÄTZLICHE ARBEITSZEIT",
-  ],
-  justificationTypesToIgnore: [
-    "06ZAOA ZEITAUSGLEICH o. ABZUG",
-  ],
-  targetWorkingHours: 7.5,
-  targetBreakMinutes: 60,
+const configReader = new ConfigReader();
+const homeDirConfig = configReader.getConfigFromHomeDir()
+
+const config = {
+  ...DefaultConfig,
+  ...homeDirConfig,
 } as ConfigType;
 
-try {
-  const homeDir = os.homedir();
-
-  console.log("homeDir", homeDir)
-
-  config = {
-    ...config,
-    ...require(`${homeDir}/.timeweb-genie.json`),
-  } as ConfigType;
-} catch (e) {
-  console.error("Could not open ~/.timeweb-genie.json - PLease see README.md!");
-  process.exit(1);
-}
 
 const http = new Http(config);
-
 const parser = new Parser(config);
 
 (async () => {
-
-  console.log("config", config)
 
   try {
     await http.authenticate(config.username, config.password);

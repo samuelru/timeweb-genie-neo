@@ -13,22 +13,25 @@ export default class Http {
     this.timewebUrl = config.timewebUrl;
 
     this.httpsAgent = new https.Agent({
-      rejectUnauthorized: !config.disableSSL,
+      rejectUnauthorized: false,
     });
 
     this.cookies = [];
   }
 
   async authenticate(username: string, password: string) {
+
+    let data = this.#encodeFormData({
+      AZIONE: "RICHIESTAAUTENTIFICAZIONE",
+      USERNAME: username,
+      PASSWORD: password,
+    });
+
     const response = await axios({
       url: this.timewebUrl,
       method: "post",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      data: this.#encodeFormData({
-        AZIONE: "RICHIESTAAUTENTIFICAZIONE",
-        USERNAME: username,
-        PASSWORD: password,
-      }),
+      data: data,
       httpsAgent: this.httpsAgent,
     });
 
