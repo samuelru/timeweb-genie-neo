@@ -7,20 +7,19 @@ import { TimeTypeEnum } from "../enum/TimeTypeEnum";
 export class Parser {
   justificationTypes: string[];
   justificationTypesToIgnore: string[];
-  dateTimes: DateTimeType[];
 
   constructor(config: ConfigType) {
     this.justificationTypes = config.justificationTypes;
     this.justificationTypesToIgnore = config.justificationTypesToIgnore;
-    this.dateTimes = [];
   }
 
-  parseTimeCard(timeCardHtml: string) {
-    this.dateTimes = this.#parseDateTimes(timeCardHtml);
+  parseTimeCard(timeCardHtml: string): WorkingTimesType[] {
+    const dateTimes = this.#parseDateTimes(timeCardHtml);
+    return this.#getWorkingTimes(dateTimes);
   }
 
-  getWorkingTimes() {
-    return this.dateTimes.map(({ date, workingTimes, freeTimes }) => {
+  #getWorkingTimes(dateTimes: DateTimeType[]): WorkingTimesType[] {
+    return dateTimes.map(({ date, workingTimes, freeTimes }) => {
       let workingMinutes = 0;
       let freeMinutes = 0;
 
@@ -42,7 +41,7 @@ export class Parser {
     });
   }
 
-  #parseDateTimes(timeCardHtml: string) {
+  #parseDateTimes(timeCardHtml: string): DateTimeType[] {
     let dateTimes = [] as DateTimeType[];
 
     const rowRegex =
