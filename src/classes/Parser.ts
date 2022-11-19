@@ -3,14 +3,15 @@ import { DateTimeType } from "../types/DateTimeType";
 import { TimeEntryType } from "../types/TimeEntryType";
 import { WorkingTimesType } from "../types/WorkingTimesType";
 import { TimeTypeEnum } from "../enum/TimeTypeEnum";
+import { DefaultConfig } from "../config/DefaultConfig";
 
 export class Parser {
-  justificationTypes: string[];
-  justificationTypesToIgnore: string[];
+  config = DefaultConfig;
 
-  constructor(config: ConfigType) {
-    this.justificationTypes = config.justificationTypes;
-    this.justificationTypesToIgnore = config.justificationTypesToIgnore;
+  constructor(config?: ConfigType) {
+    if (config) {
+      this.config = config;
+    }
   }
 
   parseTimeCard(timeCardHtml: string): WorkingTimesType[] {
@@ -116,20 +117,15 @@ export class Parser {
         const timesRegex = /<TD>(\d{2}:\d{2})<\/TD><TD>(\d{2}:\d{2})<\/TD>/i;
         const timesMatches = timesRegex.exec(row);
 
-        if (timesMatches) {
-          const foundWorkingType = this.justificationTypes.find((type) =>
-            row.includes(type)
-          );
-
-          const foundTypeToIgnore = this.justificationTypesToIgnore.find(
-            (type) => row.includes(type)
-          );
-
-          if (foundTypeToIgnore) {
-            continue;
+        if (this.isJustificationNotCountingAsWorkingTime(row)) {
+          if (this.isWholeDay(timesMatches)) {
+            this.addSubtractingDay(workingTimes);
           }
+          continue;
+        }
 
-          (foundWorkingType ? workingTimes : freeTimes).push(
+        if (timesMatches) {
+          workingTimes.push(
             {
               type: TimeTypeEnum.START,
               time: timeHHMMToMinutes(timesMatches[1]),
@@ -147,6 +143,29 @@ export class Parser {
       workingTimes,
       freeTimes,
     };
+  }
+
+  private isJustificationNotCountingAsWorkingTime(row: string) {
+    return this.config.justificationTypesNotCountingAsWorkingTime.find((type) =>
+      row.includes(type)
+    );
+  }
+
+  private addSubtractingDay(workingTimes: TimeEntryType[]) {
+    workingTimes.push(
+      {
+        type: TimeTypeEnum.START,
+        time: 0,
+      },
+      {
+        type: TimeTypeEnum.END,
+        time: 0,
+      }
+    );
+  }
+
+  private isWholeDay(timesMatches: RegExpExecArray | null) {
+    return !timesMatches;
   }
 }
 
