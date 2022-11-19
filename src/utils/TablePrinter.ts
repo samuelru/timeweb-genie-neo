@@ -28,7 +28,7 @@ export class TablePrinter {
         "Working Time": DateTime.durationText(dateTime.workingMinutes),
         "Free Time": DateTime.durationText(dateTime.freeMinutes),
         "Diff Hours": DateTime.minutesToHours(relativeMinutes),
-        Diff: DateTime.durationText(relativeMinutes),
+        "Diff Time": DateTime.durationText(relativeMinutes),
         "Clock Out": DateTime.minutesToTime(
           ClockOutUtil.getClockOutTime(config, dateTime)
         ),
@@ -44,7 +44,7 @@ export class TablePrinter {
       "Working Time": DateTime.durationText(totals.workingMinutes),
       "Free Time": "",
       "Diff Hours": DateTime.minutesToHours(totals.relativeMinutes),
-      Diff: DateTime.durationText(totals.relativeMinutes),
+      "Diff Time": DateTime.durationText(totals.relativeMinutes),
       "Clock Out": "",
     });
 
@@ -67,7 +67,9 @@ export class TablePrinter {
 
       console.log("Last day:");
       console.log(
-        `${result} ${lastDay["Diff Hours"] > 0 ? "+" : ""} ${lastDay.Diff}`
+        `${result} ${lastDay["Diff Hours"] > 0 ? "+" : ""} ${
+          lastDay["Diff Time"]
+        }`
       );
       console.log();
 
