@@ -1,7 +1,6 @@
 import { ConfigType } from "../types/ConfigType";
 import { DateTimeType } from "../types/DateTimeType";
 import { TimeEntryType } from "../types/TimeEntryType";
-import { WorkingTimesType } from "../types/WorkingTimesType";
 import { TimeTypeEnum } from "../enum/TimeTypeEnum";
 import { DefaultConfig } from "../config/DefaultConfig";
 
@@ -14,35 +13,7 @@ export class Parser {
     }
   }
 
-  parseTimeCard(timeCardHtml: string): WorkingTimesType[] {
-    const dateTimes = this.#parseDateTimes(timeCardHtml);
-    return this.#getWorkingTimes(dateTimes);
-  }
-
-  #getWorkingTimes(dateTimes: DateTimeType[]): WorkingTimesType[] {
-    return dateTimes.map(({ date, workingTimes, freeTimes }) => {
-      let workingMinutes = 0;
-      let freeMinutes = 0;
-
-      try {
-        workingMinutes = calculateWorkingTime(workingTimes);
-        freeMinutes = calculateWorkingTime(freeTimes);
-      } catch (e: unknown) {
-        // @ts-ignore
-        console.error(e.message);
-      }
-
-      return {
-        date,
-        workingTimes,
-        freeTimes,
-        workingMinutes,
-        freeMinutes,
-      } as WorkingTimesType;
-    });
-  }
-
-  #parseDateTimes(timeCardHtml: string): DateTimeType[] {
+  parseDateTimes(timeCardHtml: string): DateTimeType[] {
     let dateTimes = [] as DateTimeType[];
 
     const rowRegex =
@@ -200,29 +171,4 @@ function mergeTimes(
   return result;
 }
 
-function calculateWorkingTime(times: TimeEntryType[]) {
-  let currentType = TimeTypeEnum.END;
-  let currentTime = 0;
 
-  let time = times.reduce((workingTime, { type, time }) => {
-    if (currentType === TimeTypeEnum.END && type === TimeTypeEnum.START) {
-      currentTime = time;
-      currentType = type;
-      return workingTime;
-    }
-    if (currentType === TimeTypeEnum.START && type === TimeTypeEnum.END) {
-      currentType = type;
-      return workingTime + (time - currentTime);
-    }
-    throw new Error("Start and end times not matching");
-  }, 0);
-
-  // Use current time as end time, if last logged is a start time (= currently working)
-  if (currentType === TimeTypeEnum.START) {
-    const now = new Date();
-    time +=
-      now.getHours() * 60 + now.getMinutes() - times[times.length - 1].time;
-  }
-
-  return time;
-}

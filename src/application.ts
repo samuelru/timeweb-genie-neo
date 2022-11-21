@@ -6,6 +6,7 @@ import { DateTime } from "./utils/DateTime";
 import { DefaultConfig } from "./config/DefaultConfig";
 import ConfigReader from "./repository/ConfigReader";
 import { TablePrinter } from "./utils/TablePrinter";
+import {Calculator} from "./classes/Calculator";
 
 const scriptArgs = process.argv.slice(2);
 
@@ -37,7 +38,9 @@ async function run() {
     DateTime.getDateTo(scriptArgs[1])
   );
 
-  const workingTimes = parser.parseTimeCard(timeCardHtml);
+  const dateTimes = parser.parseDateTimes(timeCardHtml);
+  
+  const workingTimes = Calculator.getWorkingTimes(dateTimes);
 
   TablePrinter.print(config, workingTimes);
 }
